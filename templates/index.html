@@ -2,20 +2,20 @@
 <html lang="en_US">
 <head>
     <meta charset="utf-8">
-    <meta content="Unofficial server browser for SRB2Kart servers" name="description">
-    <meta content="SRB2Kart" name="author">
-    <title>SRB2Kart Server Browser</title>
+    <meta content="Unofficial server browser for Ring Racers servers" name="description">
+    <meta content="Ring Racers" name="author">
+    <title>Ring Racers Server Browser</title>
     <meta property="og:type" content="website">
-    <meta property="og:title" content="SRB2Kart Server Browser">
-    <meta property="og:description" content="Unofficial server browser for SRB2Kart servers">
+    <meta property="og:title" content="Ring Racers Server Browser">
+    <meta property="og:description" content="Unofficial server browser for Ring Racers servers">
     <meta property="og:image" content="https://media.discordapp.net/attachments/275416357053399040/514214373187649559/kartlogo-wallpaper1080p.png">
     <meta property="og:image:width" content="1920">
     <meta property="og:image:height" content="1080">
-    <meta property="og:image:alt" content="SRB2Kart">
+    <meta property="og:image:alt" content="Ring Racers">
     <meta property="og:locale" content="en_US">
-    <meta name="twitter:text:title" content="SRB2Kart Server Browser">
+    <meta name="twitter:text:title" content="Ring Racers Server Browser">
     <meta name="twitter:image" content="https://media.discordapp.net/attachments/275416357053399040/514214373187649559/kartlogo-wallpaper1080p.png">
-    <meta name="twitter:image:alt" content="SRB2Kart">
+    <meta name="twitter:image:alt" content="Ring Racers">
     <meta name="twitter:card" content="summary">
     <link href="{{ url_for('static', filename='stylesheets/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="icon" type="image/ico" href="{{ url_for('static', filename='images/kartlogo.ico') }}">
@@ -84,7 +84,7 @@
 <div class="container">
 
 <!-- some random info -->
-<h2>SRB2Kart Server Browser</h2>
+<h2>Ring Racers Server Browser</h2>
 <p>To refresh the servers, refresh the page.<br />Data is updated in 30 second intervals.</p>
 <p>Last updated on <b>{{curDateTime}}</b></p>
 <!-- the table containing all info>-->
@@ -97,7 +97,7 @@
             <th><a href="javascript:void(0)" onclick='sortTable(1)'>Name<span class="material-icons order" id="order_1" style="display: none">arrow_drop_down</span></a></th>
             <th><a href="javascript:void(0)" onclick='sortTable(2)'>Players<span class="material-icons order" id="order_2" style="display: none">arrow_drop_down</span></a></th>
             <th><a href="javascript:void(0)" onclick='sortTable(3)'>Gametype<span class="material-icons order" id="order_3" style="display: none">arrow_drop_down</span></a></th>
-            <th><a href="" onclick=''>Kartspeed<span class="material-icons order" id="order_4" style="display: none">arrow_drop_down</span></a></th>
+            <th><a href="javascript:void(0)" onclick='sortTable(4)'>Gear<span class="material-icons order" id="order_4" style="display: none">arrow_drop_down</span></a></th>
             <!--<th>Refresh</th>-->
         </tr>
         {% for num, server in allServerInfo %}
@@ -107,13 +107,13 @@
                         <span id="drop_{{num}}" class="material-icons dropdown" data-open="0" style>arrow_drop_down</span>
                     </a>
                 </td>
-                <td><a href="srb2kart://ip/{{server['ip']}}:{{server['port']}}">{{server['ip']}}:{{server['port']}}</a></td>
+                <td><a href="ringracers://ip/{{server['ip']}}:{{server['port']}}">{{server['ip']}}:{{server['port']}}</a></td>
                 <td id="flag_{{num}}"><img src="{{allServerFlags[server['ip']][2]}}" alt="{{allServerFlags[server['ip']][0]}}" style="width: 24px; height: 18px;" />{{allServerFlags[server['ip']][3]}}</td>
                 <!--<td id="state_{{num}}"></td>-->
                 <td id="name_{{num}}">{{server['servername']|safe}}</td>
                 <td id="players_{{num}}">{{server['players']['count']}} / {{server['players']['max']}}</td>
                 <td id="gametype_{{num}}">{{server['gametype']}}</td>
-                <td id="kartspeed_{{num}}">{{server['kartspeed']}}</td>
+                <td id="gamespeed_{{num}}">{{server['gamespeed']}}</td>
                 <!--<td><a href="javascript:void(0)" style>
                     <span class="material-icons refresh">cached</span>
                 </a></td>-->
@@ -136,8 +136,8 @@
                             </p>
                             {% endif %}
                             <p>
-                                <b>Kartspeed: </b>
-                                <span>{{server['kartspeed']}}</span>
+                                <b>Gamespeed: </b>
+                                <span>{{server['gamespeed']}}</span>
                             </p>
                             <p>
                                 <b>Map:</b>
@@ -181,7 +181,7 @@
         {% endfor %}
     </tbody>
 </table>
-<small id="footer" style="padding-bottom: 8px; color: #ccc">Created by raphaelgoulart, modified by Aqua. Based on existing work by James R. and GoldenTails. 
+<small id="footer" style="padding-bottom: 8px; color: #ccc">Created by raphaelgoulart, modified by Aqua, and adapted for Ring Racers. Based on existing work by James R. and GoldenTails. 
 <img src="{{ url_for('static', filename='images/picardy.png') }}" alt="very cool emoji" style="width: 26px; height: 18px;"></small>
 </div>
 </body>
@@ -189,14 +189,14 @@
 <!-- scripts the table utilizes -->
 <script>
 
-    var current_sort = 2; //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = kartspeed
+    var current_sort = 2; //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = gamespeed
     var sort_ip = false;
     var sort_name = false;
     var sort_player = true;
     var sort_gametype = false;
-    var sort_kartspeed = false;
+    var sort_gear = false;
 
-    function sortTable(column,change=true){ //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = kartspeed
+    function sortTable(column,change=true){ //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = gamespeed
     current_sort = column
     var server_array = $(".server_tr").toArray()
     server_array.sort(function(a,b){
@@ -214,6 +214,8 @@
             return sortPlayers(a.children[4].innerHTML,b.children[4].innerHTML)
         }else if(column == 3){
             return sortGametype(a.children[5].innerHTML,b.children[5].innerHTML)
+        }else if(column == 4){
+            return sortGear(a.children[5].innerHTML,b.children[5].innerHTML)
         }
     })
     if(column == 0){
@@ -221,6 +223,7 @@
         sort_name = false;
         sort_player = false;
         sort_gametype = false;
+        sort_gear = false;
         if(!sort_ip) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_0").text(sort_ip ? 'arrow_drop_up' : 'arrow_drop_down').show()
@@ -229,6 +232,7 @@
         if(change) sort_name = !sort_name;
         sort_player = false;
         sort_gametype = false;
+        sort_gear = false;
         if(!sort_name) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_1").text(sort_name ? 'arrow_drop_up' : 'arrow_drop_down').show()
@@ -237,6 +241,7 @@
         sort_name = false;
         if(change) sort_player = !sort_player;
         sort_gametype = false;
+        sort_gear = false;
         if(!sort_player) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_2").text(sort_player ? 'arrow_drop_up' : 'arrow_drop_down').show()
@@ -245,9 +250,18 @@
         sort_name = false;
         sort_player = false;
         if(change) sort_gametype = !sort_gametype;
+        sort_gear = false;
         if(!sort_gametype) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_3").text(sort_gametype ? 'arrow_drop_up' : 'arrow_drop_down').show()
+    }else if(column == 4){
+        sort_ip = false;
+        sort_name = false;
+        sort_player = false;
+        if(change) sort_gear = !sort_gear;
+        if(!sort_gear) server_array = server_array.reverse()
+        $(".order").hide()
+        $("#order_4").text(sort_gear ? 'arrow_drop_up' : 'arrow_drop_down').show()
     }
     var table = $("#tbody")
     for (var i = 0; i < server_array.length; i++){
@@ -318,6 +332,19 @@ function gametypeToNumber(gt){
 function sortGametype(a,b){
     a = gametypeToNumber(a)
     b = gametypeToNumber(b)
+    return compare(a,b)   
+}
+
+function geartoNumber(gear){
+    if(gear=="Gear 1") return 1
+    if(gear=="Gear 2") return 2
+    if(gear=="Gear 3") return 3
+    return -1
+}
+
+function sortGear(a,b){
+    a = geartoNumber(a)
+    b = geartoNumber(b)
     return compare(a,b)   
 }
 
