@@ -62,9 +62,14 @@ def srb2kart_browser():
                             'max': 0
                             },
                         'ip': 'EMPTY',
-                        'port': '5029'
+                        'port': '5029',
+                        'level': {
+                            'title': 'EMPTY'
+                            }
                         }
         allServerInfo.append(serverInfo)
+        allServerFlags[serverInfo['ip']] = ['Unknown', 'XX', "./static/images/picardydown.png", "   "]
+
     # TODO: also add allServerFlags info
     
     # serve the page
