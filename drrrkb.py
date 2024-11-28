@@ -42,7 +42,7 @@ allServerAddons = {}
 allServerAddonsSorted = {}
 curDateTime = ""
 serverCounter = 1
-masterServerURL = "https://ms.kartkrew.org/ms/api/games/RingRacers/4/servers?v=2.2" #"http://localhost:8080/ms/api/games/RingRacers/4/servers?v=2.2" 
+masterServerURL = "http://localhost:8080/ms/api/games/RingRacers/4/servers?v=2.2" #"https://ms.kartkrew.org/ms/api/games/RingRacers/4/servers?v=2.2"
 
 # --- flask webapp ---
 # include some other routes to prevent link rot/be more flexible/insert dumb reason
