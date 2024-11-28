@@ -42,33 +42,33 @@ allServerAddons = {}
 allServerAddonsSorted = {}
 curDateTime = ""
 serverCounter = 1
-masterServerURL = "http://localhost:8080/ms/api/games/RingRacers/4/servers?v=2.2" #"https://ms.kartkrew.org/ms/api/games/RingRacers/4/servers?v=2.2"
+masterServerURL = "https://ms.kartkrew.org/ms/api/games/RingRacers/4/servers?v=2.2" #"http://localhost:8080/ms/api/games/RingRacers/4/servers?v=2.2" 
 
 # --- flask webapp ---
 # include some other routes to prevent link rot/be more flexible/insert dumb reason
 @app.route('/', methods=["GET"])
 @app.route('/browser/', methods=["GET"])
 @app.route('/browser/index.html', methods=["GET"])
-def srb2kart_browser():
+def drrr_browser():
 
     # make sure we have data
     # otherwise import some empty data
     if len(allServerInfo) == 0:
         serverInfo = {  
-                        'servername': 'EMPTY',
-                        'gametype': 'EMPTY',
+                        'servername': 'Empty',
+                        'gametype': 'Empty',
                         'players': {
                             'count': 0,
                             'max': 0
                             },
-                        'ip': 'EMPTY',
-                        'port': '5029',
+                        'ip': '',
+                        'port': '',
                         'level': {
-                            'title': 'EMPTY'
+                            'title': 'Empty'
                             }
                         }
         allServerInfo.append(serverInfo)
-        allServerFlags[serverInfo['ip']] = ['Unknown', 'XX', "./static/images/picardydown.png", "   "]
+        allServerFlags[serverInfo['ip']] = ['Unknown', 'XX', "", "   "]
 
     # TODO: also add allServerFlags info
     
@@ -84,7 +84,7 @@ def srb2kart_addonCount():
 
 # --- kart server related functions ---
 def updateServers():
-    """"Update the allServerInfo list with data from all kart servers. List of kart servers retrieved from the default master server."""
+    """Update the allServerInfo list with data from all ring racers servers. List of ring racers servers retrieved from the default/custom master server."""
     # first get a list of all servers from the master server
     try:
         print("Getting list of servers from " + masterServerURL)
@@ -125,9 +125,9 @@ def updateServers():
     print("Checking all servers...")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = []
-
         for ip, port, contact in serversToCheck:
             futures.append(executor.submit(appendServerInfo, ip, port, contact))
+    
     print("Checks done.")
 
     # sort list on amount of players and amount of max players
@@ -278,6 +278,8 @@ print(r"""
 
 if parsedArgs.verbose == False:
     print("NOTE: Verbose information disabled. Individual server checks won't be shown. Enable these with -v as launch argument.\n")
+app.run(host = '0.0.0.0', port = parsedArgs.port)
+
 
 # update servers ourself for a first time so we can display at least SOMETHING
 updateServers()
@@ -285,4 +287,3 @@ updateServers()
 #print("Done")
 # start running the flask server
 # flask is being run as a development server like this. works fine for our purposes though
-app.run(host='0.0.0.0', port=parsedArgs.port)

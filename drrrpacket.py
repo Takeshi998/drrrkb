@@ -75,16 +75,6 @@ class RR:
         '#ffc7a7',
     ]
     TICRATE            = 35
-    GT_COOP            = 0
-    GT_COMPETITION     = 1
-    GT_RACE            = 2
-    GT_MATCH           = 3
-    GT_TEAMMATCH       = 4
-    GT_TAG             = 5
-    GT_HIDEANDSEEK     = 6
-    GT_CTF             = 7
-    GF_REDFLAG         = 1
-    GF_BLUEFLAG        = 2
     PT_ASKINFO         = 12
     PT_SERVERINFO      = 13
     PT_PLAYERINFO      = 14
@@ -93,7 +83,6 @@ class RR:
     SV_SPEEDMASK       = 0x03
     SV_LOTSOFADDONS    = 0x20
     SV_DEDICATED       = 0x40
-    SV_PASSWORD        = 0x80
     NETFIL_WONTSEND    = 32
     NETFIL_WILLSEND    = 16
     pkformats = {
@@ -104,7 +93,7 @@ class RR:
             '16sapplication/'  +
             'Bversion/'        +
             'Bsubversion/'     +
-            '4scommit/'         +
+            '4scommit/'        +
             'Bnumberofplayer/' +
             'Bmaxplayer/'      +
             'Brefusereason/'   +
@@ -199,7 +188,6 @@ class RR:
             speed = speeds[(c & self.SV_SPEEDMASK) + 1]
             info['gamespeed'] = ( speed if speed else 'Too fast' )
         info['dedicated'] = bool( c & self.SV_DEDICATED )
-        info['password-protected'] = bool( c & self.SV_PASSWORD  )
 
     def Checksum(self, p, l):
         n = len(p) - l
@@ -236,21 +224,21 @@ class RR:
         p = p[0]
         n = len(p)
         if (n < 8): # Header
-            print('header')
+            #print('header')
             return False
         if (self.bytes_to_int(p[:4]) != self.Checksum(p, 4)): # Checksum mismatch
-            print('bad checksum')
+            #print('bad checksum')
             return False
         self.pk['type'] = ord(chr(p[6]))
         if (self.pk['type'] != type):
-            print('line 214')
+            #print('line 214')
             return False
         pkf = self.pkformats[self.pk['type']]
         if not pkf:
-            print('line 218')
+            #print('line 218')
             return False
         if (n < pkf['minimum']):
-            print('smaller than minimum')
+            #print('smaller than minimum')
             return False
         self.pk['buffer'] = p[8:]
         if (unpk):
@@ -339,24 +327,14 @@ class RR:
         
         t = {}
 
-        # SRB2Kart 1.0.4 and 1.10.0
-        #if (( version == 100 && subversion == 4 ) or
-        #    version == 110)
-        #{
         self.Unkartvars(t, self.pk)
-        #}
-        #else
-        #{
-        #    copy_bool(t['dedicated'], pk['isdedicated'])
-        #    lotsofaddons = FALSE
-        #}
 
         t['ping'] = int((stoptime.days * 24 * 60 * 60 + stoptime.seconds) * 1000 + stoptime.microseconds / 1000.0)
         t['version'] = {
-            'major': int(version / 100),
-            'minor': version % 100,
-            'patch': subversion,
+            'major': version,
+            'minor': subversion,
         }
+        t['packetversion'] = self.pk['packetversion']
         t['version']['name'] = self.pk['application']
 
         t['servername'] = self.pk['servername']
@@ -367,9 +345,9 @@ class RR:
         }
         t['gametype'] = self.pk['gametypename']
 
-
         t['mods'] =   bool(self.pk['modifiedgame'])
         t['cheats'] = bool(self.pk['cheatsenabled'])
+        t['avgpowerlevel'] = self.pk['avgpwrlv']
 
         t['level'] = {
             'seconds': self.pk['leveltime'] / self.TICRATE,
@@ -388,12 +366,9 @@ class RR:
             return info
 
         teams = {
-            self.GF_REDFLAG: 'Red',
-            self.GF_BLUEFLAG: 'Blue',
-            0                 : 'Playing',
-            255               : 'Spectator',
+            0: 'Playing',
+            255: 'Spectator',
         }
-
         info['players']['list'] = []
 
         for i in range(32):
@@ -405,42 +380,50 @@ class RR:
                 t['name']    = self.pk['name']
                 team = teams[self.pk['team']]
                 t['team']    = ( team if team else 'Unknown' )
-                t['rank' if (version == 100 or version == 110)
-                     else 'score' ] = self.pk['score']
+                t['score'] = self.pk['score']
+                t['skin'] = self.pk['skin']
                 t['seconds'] = self.pk['timeinserver']
+
+                time = int(t['seconds'])
+                seconds = time % 60
+                minutes = (time / 60) % 60
+                hours = (time / 60) / 60
+                t['time'] = "{:02d}:{:02d}:{:02d}".format(round(hours), round(minutes), round(seconds))
 
                 info['players']['list'].append(t)
 
         return info
 
-    def Fileinfo (self) :
+    def Fileinfo (self):
         fileinfo = []
-        fileinfo = self.Unfileneeded(fileinfo, self.fileneedednum, self.fileneeded);
+        fileinfo = self.Unfileneeded(fileinfo, self.fileneedednum, self.fileneeded)
 
         if (self.lotsofaddons):
-            start = self.fileneedednum;
+            start = self.fileneedednum
             self.pk['more'] = True
             while self.pk['more']:
-                if (not self.Send({
-                    'type'           : self.PT_TELLFILESNEEDED,
-                    'filesneedednum' : start,
-                })):
-                    break;
+                if (not self.Send({'type': self.PT_TELLFILESNEEDED, 'filesneedednum': start, })):
+                    break
                 self.pk = self.Read(self.PT_MOREFILESNEEDED)
                 if not self.pk:
-                    break;
+                    break
                 start += self.pk['num']
                 fileinfo = self.Unfileneeded(fileinfo, self.pk['num'], self.pk['files'])
         return fileinfo
 
-    def Colorize (self,s) :
+    def Colorize (self, s: str):
         #Probably not the pinnacle of performance.
         codes = ["\\x80","\\x81","\\x82","\\x83","\\x84","\\x85","\\x86","\\x87","\\x88","\\x89","\\x8a","\\x8b","\\x8c","\\x8d","\\x8e","\\x8f",]
         #Remove anything that is not printable ASCII and sanitize!
         s = html.escape(s)
+        #print(s)
+
+        #new = [s]
         for i in range(0x10):
-            s = s.replace(codes[i],
-                '</span><span style="color:' + self.colors[i] + ';">')
+            #s.replace(codes[i], "")
+            s = s.replace(codes[i], '</span><span style="color:' + self.colors[i] + ';">')
+
+        #print(new)
         s = '<span style="color:' + self.colors[0] + '">' + s + '</span>'
         
         #Doing this backward for a good reason; so that higher numbers get a
@@ -456,6 +439,7 @@ class RR:
         self.Ask()
         info = self.Info()
         info['servername'] = self.Colorize(info['servername'])
+        info['servername_raw'] = info['servername']
         info['addons'] = self.Fileinfo()
         self.Close()
         return info

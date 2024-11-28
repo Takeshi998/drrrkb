@@ -13,6 +13,16 @@
  */
 @import url(https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap);
 
+@font-face {
+    font-family: "srb2kart-normal";
+    src: url("../fonts/srb2k-normal.otf");
+}
+
+@font-face {
+    font-family: "srb2kart-outlined";
+    src: url("../fonts/srb2k-outlined.otf");
+}
+
 :root {
     --blue: #375a7f;
     --indigo: #6610f2;
@@ -53,8 +63,7 @@
 html {
     font-family: sans-serif;
     line-height: 1.15;
-    -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent
+    -webkit-tap-highlight-color: transparent;
 }
 
 article,
@@ -75,10 +84,15 @@ body {
     font-family: Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: .9375rem;
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 1.15;
     color: #fff;
     text-align: left;
-    background-color: #222
+    background-color: #000;
+    background-image: url("/static/images/Background.png");
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+    backdrop-filter: brightness(0.6);
 }
 
 [tabindex="-1"]:focus:not(:focus-visible) {
@@ -182,7 +196,7 @@ a {
 }
 
 a:hover {
-    color: #007053;
+    color: #0bd9e7;
     text-decoration: underline
 }
 
@@ -217,7 +231,8 @@ figure {
 
 img {
     vertical-align: middle;
-    border-style: none
+    border-style: none;
+    image-rendering: pixelated;
 }
 
 svg {
@@ -239,7 +254,38 @@ caption {
 
 th {
     text-align: inherit;
-    text-align: -webkit-match-parent
+    text-align: -webkit-match-parent;
+    text-align: match-parent;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.kart-normal {
+    font-family: 'srb2kart-normal';
+    color: white;
+}
+
+.kart-full {
+    font-family: 'srb2kart-outlined';
+    color: black;
+}
+
+.kart-full::after {
+    padding-right: .25rem !important;
+    padding-left: .25rem !important;
+
+    font-family: 'srb2kart-normal';
+    content: attr(kart-string);
+    position: absolute;
+    top: 2px;
+    left: 0;
+    color: white;
+}
+
+.font-small {
+    font-size: small;
 }
 
 label {
@@ -289,7 +335,7 @@ select {
 [type=reset],
 [type=submit],
 button {
-    -webkit-appearance: button
+    appearance: button
 }
 
 [type=button]:not(:disabled),
@@ -348,7 +394,7 @@ progress {
 
 [type=search] {
     outline-offset: -2px;
-    -webkit-appearance: none
+    appearance: none
 }
 
 [type=search]::-webkit-search-decoration {
@@ -627,6 +673,17 @@ pre code {
     .container-sm,
     .container-xl {
         max-width: 1140px
+    }
+}
+
+@media (min-width:1600px) {
+
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl {
+        max-width: 1540px
     }
 }
 
@@ -2014,7 +2071,7 @@ pre code {
 
 .table-hover tbody tr:hover {
     color: #fff;
-    background-color: rgba(0, 0, 0, .075)
+    background-color: rgba(0, 0, 0, 1)
 }
 
 .table-primary,
@@ -4179,8 +4236,6 @@ input[type=submit].btn-block {
     display: block;
     min-height: 1.40625rem;
     padding-left: 1.5rem;
-    -webkit-print-color-adjust: exact;
-    color-adjust: exact
 }
 
 .custom-control-inline {

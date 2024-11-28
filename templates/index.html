@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en_US">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta content="Unofficial server browser for Ring Racers servers" name="description">
@@ -17,8 +17,9 @@
     <meta name="twitter:image" content="https://media.discordapp.net/attachments/275416357053399040/514214373187649559/kartlogo-wallpaper1080p.png">
     <meta name="twitter:image:alt" content="Ring Racers">
     <meta name="twitter:card" content="summary">
-    <link href="{{ url_for('static', filename='stylesheets/bootstrap.min.css') }}" rel="stylesheet">
-    <link rel="icon" type="image/ico" href="{{ url_for('static', filename='images/kartlogo.ico') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="/static/stylesheets/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/ico" href="/static/images/kartlogo.ico">
     <style>
         body{
             text-align: center;
@@ -43,14 +44,20 @@
             height: 100%
         }
         a{
-            vertical-align: center;
+            vertical-align: middle;
             color: inherit;
         }
         a:hover{
             text-decoration: none;
         }
         td{
-            vertical-align: center;
+            vertical-align: middle;
+        }
+        .server_tr {
+            background-color: #303030 !important;
+        }
+        .server_tr:hover {
+            background-color: #484848 !important;
         }
         .extra div div{
             width: 50%;
@@ -84,280 +91,374 @@
 <div class="container">
 
 <!-- some random info -->
-<h2>Ring Racers Server Browser</h2>
-<p>To refresh the servers, refresh the page.<br />Data is updated in 30 second intervals.</p>
-<p>Last updated on <b>{{curDateTime}}</b></p>
+<h3 class="kart-normal">Ring Racers Server Browser</h2>
+<p class="kart-normal">To refresh the servers, refresh the page.<br />Data is updated in 30 second intervals.</p>
+<p class="kart-normal">Last updated on <b>{{curDateTime}}</b></p>
 <!-- the table containing all info>-->
 <table class="table table-hover table-striped" id="table">
     <tbody id="tbody">
-        <tr>
+        <tr class="server_tr">
             <th></th>
-            <th><a href="javascript:void(0)" onclick='sortTable(0)'>IP Address<span class="material-icons order" id="order_0" style="display: none">arrow_drop_down</span></a></th>
             <th></th>
-            <th><a href="javascript:void(0)" onclick='sortTable(1)'>Name<span class="material-icons order" id="order_1" style="display: none">arrow_drop_down</span></a></th>
-            <th><a href="javascript:void(0)" onclick='sortTable(2)'>Players<span class="material-icons order" id="order_2" style="display: none">arrow_drop_down</span></a></th>
-            <th><a href="javascript:void(0)" onclick='sortTable(3)'>Gametype<span class="material-icons order" id="order_3" style="display: none">arrow_drop_down</span></a></th>
-            <th><a href="javascript:void(0)" onclick='sortTable(4)'>Gear<span class="material-icons order" id="order_4" style="display: none">arrow_drop_down</span></a></th>
+            <th class="text-left"><a href="javascript:void(0)" onclick='sortTable(0)'>IP Address<span class="material-icons order" id="order_0" style="display: none">arrow_drop_down</span></a></th>
+            <th class="text-left"><a href="javascript:void(0)" onclick='sortTable(1)'>Name<span class="material-icons order" id="order_1" style="display: none;">arrow_drop_down</span></a></th>
+            <th ><a href="javascript:void(0)" onclick='sortTable(2)'>Players<span class="material-icons order" id="order_2" style="display: none">arrow_drop_down</span></a></th>
+            <th class="text-left"><a href="javascript:void(0)" onclick='sortTable(3)'>Gametype<span class="material-icons order" id="order_3" style="display: none">arrow_drop_down</span></a></th>
+            <th class="text-left"><a href="javascript:void(0)" onclick='sortTable(4)'>Gear<span class="material-icons order" id="order_4" style="display: none">arrow_drop_down</span></a></th>
+            <th class="text-left"><a href="javascript:void(0)" onclick=''>Avg. Power<span class="material-icons order" id="order_5" style="display: none">arrow_drop_down</span></a></th>
+            <th class="text-left"><a href="javascript:void(0)" onclick='sortTable(6)'>Type<span class="material-icons order" id="order_6" style="display: none">arrow_drop_down</span></a></th>
             <!--<th>Refresh</th>-->
         </tr>
         {% for num, server in allServerInfo %}
             <tr class="server_tr" id="row_{{num}}" data-index="{{num}}">
-                <td>
+                <td style="vertical-align: middle;">
                     <a onclick="openExtraDetails({{num}})">
                         <span id="drop_{{num}}" class="material-icons dropdown" data-open="0" style>arrow_drop_down</span>
                     </a>
                 </td>
-                <td><a href="ringracers://ip/{{server['ip']}}:{{server['port']}}">{{server['ip']}}:{{server['port']}}</a></td>
-                <td id="flag_{{num}}"><img src="{{allServerFlags[server['ip']][2]}}" alt="{{allServerFlags[server['ip']][0]}}" style="width: 24px; height: 18px;" />{{allServerFlags[server['ip']][3]}}</td>
+                <td class="text-left" id="flag_{{num}}" style="vertical-align: middle;">
+                    {% if allServerFlags[server['ip']][2] != "" %}
+                        <img src="{{allServerFlags[server['ip']][2]}}" alt="{{allServerFlags[server['ip']][0]}}" title="{{allServerFlags[server['ip']][0]}}" style="width: 24px; height: 18px;" />
+                    {% endif %}
+                    {{allServerFlags[server['ip']][3]}}
+                </td>
+                <td class="text-left" style="vertical-align: middle;">
+                    {% if server['ip'] != "" %}
+                    <a href="javascript:void(0)" onclick="copyAddress({{server['ip']}}:{{server['port']}})">{{server['ip']}}:{{server['port']}}</a>
+                    {% else %}
+                    Empty
+                    {% endif %}
+                </td>
                 <!--<td id="state_{{num}}"></td>-->
-                <td id="name_{{num}}">{{server['servername']|safe}}</td>
-                <td id="players_{{num}}">{{server['players']['count']}} / {{server['players']['max']}}</td>
-                <td id="gametype_{{num}}">{{server['gametype']}}</td>
-                <td id="gamespeed_{{num}}">{{server['gamespeed']}}</td>
+                <td class="text-left kart-normal font-small" id="name_{{num}}" style="vertical-align: middle; position: relative;">
+                    {{server['servername']|safe}}
+
+                </td>
+                <td id="players_{{num}}" style="vertical-align: middle;">{{server['players']['count']}} / {{server['players']['max']}}</td>
+                <td class="text-left" id="gametype_{{num}}" style="vertical-align: middle;">{{server['gametype']}}</td>
+                <td class="text-left" id="gamespeed_{{num}}" style="vertical-align: middle;">{{server['gamespeed']}}</td>
+                <td class="text-left" id="gamespeed_{{num}}" style="vertical-align: middle;">
+                    {% if server['avgpowerlevel'] != -1 %}
+                        {{server['avgpowerlevel']}}
+                    {% elif server['avgpowerlevel'] %}
+                    Disabled
+                    {% else %}
+                    Unavaliable
+                    {% endif %}
+                </td>
+                <td class="text-left" id="type_{{num}}" style="vertical-align: middle;">{{server['addons']|length|string + ' Addons' if server['addons'] else 'Vanilla'}}</td>
                 <!--<td><a href="javascript:void(0)" style>
                     <span class="material-icons refresh">cached</span>
                 </a></td>-->
             </tr>
 
             <tr class="extra_tr" id="extratr_{{num}}">
-                <td colspan="7" id="extra_{{num}}" class="extra" style="display: none;">
+                <td colspan="9" id="extra_{{num}}" class="extra" style="display: none;">
                     <div style="width: 100%; display: flex;">
                         <div>   <!-- server info -->
                             <h2>Server info</h2>
-                            <p>
-                                <b>Server type:</b> {{'Dedicated' if server['dedicated'] else 'Listen'}} 
+                            <p class="text-left">
+                                <b>{{'Dedicated' if server['dedicated'] else 'Listen'}} Server</b>
                             </p>
-                            <p>
-                                <b>Contact:</b> {{server['contact'] if server['contact'] else 'No contact set'}}
+                            <p class="text-left">
+                                <b>Contact:</b> {{server['contact'] if server['contact'] else 'Not set'}}
                             </p>
-                            {% if server['motd'] %}
-                            <p>
-                                <b>MOTD:</b> <i>{{server['motd']}}</i>
+                            <p class="text-left">
+                                <b>MOTD:</b>  {{server['motd'] if server['motd'] else 'Not set'}}
+                            </p>
+                            {% if server['addons'] %}
+                            <p class="text-left">
+                                <b>Addons: </b><span>{{server['addons']|length}}</span>
                             </p>
                             {% endif %}
-                            <p>
-                                <b>Gamespeed: </b>
-                                <span>{{server['gamespeed']}}</span>
+                            {% if server['gamespeed'] %}
+                            <p class="text-left">
+                                <b>Game Speed: </b><span>{{server['gamespeed']}}</span>
                             </p>
-                            <p>
-                                <b>Map:</b>
-                                <span>{{server['level']['title']}}</span>
+                            {% endif %}
+                            <p class="text-left">
+                                <b>Map: </b><span>{{server['level']['title']}}</span>
                             </p>
-                            
-                            <h2>Players</h2>
-                            <table class="table">
-                                {% for player in server['players']['list'] %} <!-- fill Players table with player info. table will be empty with no players-->
-                                <tr><td>
-                                    <p>
-                                    {% if player['team'] == 'Playing' %}
-                                        <span>{{player['name']}}</span>
-                                    {% else %}
-                                        <span><i>{{player['name']}}</i></span>
-                                    {% endif %}
-                                        <span style="float: right;">{{player['score']}}</span>
-                                    </p>
-                                </td></tr>
-                                {% endfor %}
-                            </table>
+                            <img src="/static/images/maps/{{server['level']['title']|replace(' ', '')}}.png" alt="{{server['level']['title']|replace(' ', '')}}" title="{{server['level']['title']}}" width="160px" height="100px" onerror="this.src = './static/images/maps/UnknownLevel.png'" style="display: block;">
                         </div>
 
-                        <div>   <!-- addon info -->
+                        <div> <!-- Player List -->
+                            <h2>Players</h2>
+                            {% if server['players']['count'] == 0 %}
+                                No players playing
+                            {% else %}
+                            <table class="table">
+                                <th></th>
+                                <th class="text-left">Player</th>
+                                {% if server['avgpowerlevel'] and (server['avgpowerlevel'] == -1) %}
+                                <th class="text-left">Score</th>
+                                {% endif %}
+                                <th class="text-left">Time</th>
+                                {% for player in server['players']['list'] %} <!-- fill Players table with player info. table will be empty with no players-->
+                                <tr class="text-left">
+                                    <td style="vertical-align: middle;">
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <img src="/static/images/chars/{{player['skin']}}.png" alt="" title="" width="32px" height="32px" onerror="this.src = './static/images/chars/UnknownChar.png'; this.title='Unknown/Custom Character'">
+                                        {% if player['team'] == 'Playing' %}
+                                        <span>{{player['name']}}</span>
+                                        {% else %}
+                                        <span style="color: #808080;">{{player['name']}}</span>
+                                        {% endif %}
+                                    </td>
+                                    {% if server['avgpowerlevel'] and (server['avgpowerlevel'] == -1) %}
+                                    <td style="vertical-align: middle;">
+                                        <span>{{player['score']}}</span>
+                                    </td>
+                                    {% endif %}
+                                    <td style="vertical-align: middle;">
+                                        <span>{{player['time']}}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if server['addons'] %}
+                    <div style="width: 100%; display: flex;">   <!-- addon info -->
+                        <div style="width: 100%;">
                             <h2>Addons</h2>
-                            <small><b>Count: </b>{{server['addons']|length}}</small>
                             <table class="table" style="margin-top: 15px;">
                                 <!-- for each addon -->
                                 {% for addon in server['addons'] %}
-                                    <tr><td>
+                                <tr>
+                                    <td>
                                         <p style="width: 100%; text-align: left;">{{addon['name']}}
                                             <a href="{{server['httpsource']}}{{addon['name']}}" style="float: right;"><span class="material-icons">save</span></a>
                                         </p>
-                                    </td></tr>
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </table>
                         </div>
                     </div>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
     </tbody>
 </table>
-<small id="footer" style="padding-bottom: 8px; color: #ccc">Created by raphaelgoulart, modified by Aqua, and adapted for Ring Racers by Tsuko. Based on existing work by James R. and GoldenTails. 
-<img src="{{ url_for('static', filename='images/picardy.png') }}" alt="very cool emoji" style="width: 26px; height: 18px;"></small>
+<small id="footer" style="padding-bottom: 8px; color: #ccc">Created by raphaelgoulart, modified by Aqua, and adapted for Ring Racers by Tsuko.
+<small id="footer" style="padding-bottom: 8px; color: #ccc">Based on existing work by James R. and GoldenTails.
 </div>
 </body>
 
 <!-- scripts the table utilizes -->
 <script>
 
-    var current_sort = 2; //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = gamespeed
-    var sort_ip = false;
-    var sort_name = false;
-    var sort_player = true;
-    var sort_gametype = false;
-    var sort_gear = false;
+let current_sort = 2; //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = gamespeed
+let sort_ip = false;
+let sort_name = false;
+let sort_player = true;
+let sort_gametype = false;
+let sort_gear = false;
+let sort_type = false;
 
-    function sortTable(column,change=true){ //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = gamespeed
+function copyAddress(address) {
+    navigator.clipboard.writeText(address);
+}
+
+function sortTable(column, change = true) { //0 = ip; 1 = name; 2 = players; 3 = gametype; 4 = gamespeed
     current_sort = column
-    var server_array = $(".server_tr").toArray()
-    server_array.sort(function(a,b){
-        if(column == 0){
-            return sortIp(a.children[1].innerHTML,b.children[1].innerHTML)
-        }else if(column == 1){
-            var errorstr = 'error Unable to reach server'
-            var name_a = getColorlessName(a.children[3])
-            var name_b = getColorlessName(b.children[3])
-            if(name_a==errorstr&&name_b==errorstr) return 0
-            if(name_a==errorstr) return 1
-            if(name_b==errorstr) return -1
-            return name_a.localeCompare(name_b);
-        }else if(column == 2){
-            return sortPlayers(a.children[4].innerHTML,b.children[4].innerHTML)
-        }else if(column == 3){
-            return sortGametype(a.children[5].innerHTML,b.children[5].innerHTML)
-        }else if(column == 4){
-            return sortGear(a.children[5].innerHTML,b.children[5].innerHTML)
+
+    let server_array = $(".server_tr").toArray();
+    server_array.sort(function(a, b) {
+        switch (column) {
+            case 0: { return sortIp(a.children[1].innerHTML, b.children[1].innerHTML); }
+            case 1: {
+                let errorstr = 'error Unable to reach server';
+                let name_a = getColorlessName(a.children[3]);
+                let name_b = getColorlessName(b.children[3]);
+                if ((name_a == errorstr) && (name_b == errorstr)) { return 0; }
+                if (name_a == errorstr) { return 1; }
+                if (name_b == errorstr) { return -1; }
+                return name_a.localeCompare(name_b);
+            }
+            case 2: { return sortPlayers(a.children[4].innerHTML, b.children[4].innerHTML); }
+            case 3: { return sortGametype(a.children[5].innerHTML, b.children[5].innerHTML); }
+            case 4: { return sortGear(a.children[5].innerHTML, b.children[5].innerHTML); }
+            case 6: { return sortType(a.children[5].innerHTML, b.children[5].innerHTML); }
         }
-    })
-    if(column == 0){
+    });
+
+    if (column == 0){
         if(change) sort_ip = !sort_ip;
         sort_name = false;
         sort_player = false;
         sort_gametype = false;
         sort_gear = false;
+        sort_type = false;
         if(!sort_ip) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_0").text(sort_ip ? 'arrow_drop_up' : 'arrow_drop_down').show()
-    }else if(column == 1){
+    }
+    else if(column == 1){
         sort_ip = false;
         if(change) sort_name = !sort_name;
         sort_player = false;
         sort_gametype = false;
         sort_gear = false;
+        sort_type = false;
         if(!sort_name) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_1").text(sort_name ? 'arrow_drop_up' : 'arrow_drop_down').show()
-    }else if(column == 2){
+    }
+    else if(column == 2){
         sort_ip = false;
         sort_name = false;
         if(change) sort_player = !sort_player;
         sort_gametype = false;
         sort_gear = false;
+        sort_type = false;
         if(!sort_player) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_2").text(sort_player ? 'arrow_drop_up' : 'arrow_drop_down').show()
-    }else if(column == 3){
+    }
+    else if(column == 3){
         sort_ip = false;
         sort_name = false;
         sort_player = false;
         if(change) sort_gametype = !sort_gametype;
         sort_gear = false;
+        sort_type = false;
         if(!sort_gametype) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_3").text(sort_gametype ? 'arrow_drop_up' : 'arrow_drop_down').show()
-    }else if(column == 4){
+    }
+    else if(column == 4) {
         sort_ip = false;
         sort_name = false;
         sort_player = false;
         if(change) sort_gear = !sort_gear;
+        sort_type = false;
         if(!sort_gear) server_array = server_array.reverse()
         $(".order").hide()
         $("#order_4").text(sort_gear ? 'arrow_drop_up' : 'arrow_drop_down').show()
     }
-    var table = $("#tbody")
-    for (var i = 0; i < server_array.length; i++){
-        var extra_index = Number($(server_array[i]).attr('data-index'))
+    else if(column == 6) {
+        sort_ip = false;
+        sort_name = false;
+        sort_player = false;
+        sort_gear = false;
+        if(change) sort_type = !sort_type;
+        if(!sort_type) server_array = server_array.reverse()
+        $(".order").hide()
+        $("#order_5").text(sort_type ? 'arrow_drop_up' : 'arrow_drop_down').show()
+    }
+
+    let table = $("#tbody")
+    for (let i = 0; i < server_array.length; i++){
+        let extra_index = Number($(server_array[i]).attr('data-index'))
         table.append(server_array[i])
         table.append($("#extratr_"+extra_index))
     }
 }
 
-function getColorlessName(name_element){
-    var name = ""
-    $(name_element).children().each(function(index,value){
+function getColorlessName(name_element) {
+    let name = "";
+    $(name_element).children().each(function(index,value) {
         name += value.innerHTML
-    })
-    return name
+    });
+    return name;
 }
 
-function compare(a,b){
-    if (a < b) {
-        return -1;
-    }
-    if (a > b) {
-        return 1;
-    }
+function compare(a, b) {
+    if (a < b) { return -1; }
+    if (a > b) { return 1; }
     return 0;
 }
 
-function sortIp(a,b){
+function sortIp(a, b){
     arr_a = a.split(':')[0].split('.')
     arr_b = b.split(':')[0].split('.')
     num_a = Number(arr_a[0])
     num_b = Number(arr_b[0])
-    if(num_a == num_b){
+    if (num_a == num_b) {
         num_a = Number(arr_a[1])
         num_b = Number(arr_b[1])
     }
-    if(num_a == num_b){
+
+    if (num_a == num_b) {
         num_a = Number(arr_a[2])
         num_b = Number(arr_b[2])
     }
-    if(num_a == num_b){
+
+    if (num_a == num_b) {
         num_a = Number(arr_a[3])
         num_b = Number(arr_b[3])
     }
-    if(num_a == num_b){
+
+    if (num_a == num_b) {
         num_a = Number(a.split(':')[1])
         num_b = Number(b.split(':')[1])
     }
-    return compare(num_a,num_b)   
+    return compare(num_a, num_b)   
 }
 
 function sortPlayers(a,b){
-    if(a=='? / ?'&&b=='? / ?') return 0
-    if(a=='? / ?') return 1
-    if(b=='? / ?') return -1
-    num_a = Number(a.split('/')[0].trim())
-    num_b = Number(b.split('/')[0].trim())
-    if(num_a == num_b) return compare(Number(b.split('/')[1].trim()),Number(a.split('/')[1].trim()))
-    return compare(num_b,num_a)   
+    if ((a=='? / ?') && (b == '? / ?')) { return 0; }
+    if (a == '? / ?') { return 1; }
+    if (b == '? / ?') { return -1; }
+    num_a = Number(a.split('/')[0].trim());
+    num_b = Number(b.split('/')[0].trim());
+    if (num_a == num_b) { return compare(Number(b.split('/')[1].trim()), Number(a.split('/')[1].trim())) }
+    return compare(num_b, num_a)   
 }
 
 function gametypeToNumber(gt){
-    if(gt=="Race") return 1
-    if(gt=="Battle") return 3
-    return 2
+    if (gt == "Race") { return 1; }
+    if (gt == "Battle") { return 3; }
+    return 2;
 }
 
 function sortGametype(a,b){
     a = gametypeToNumber(a)
     b = gametypeToNumber(b)
-    return compare(a,b)   
+    return compare(a, b)   
 }
 
 function geartoNumber(gear){
-    if(gear=="Gear 1") return 1
-    if(gear=="Gear 2") return 2
-    if(gear=="Gear 3") return 3
-    return -1
+    if (gear == "Gear 1") { return 1; }
+    if (gear == "Gear 2") { return 2; }
+    if (gear == "Gear 3") { return 3; }
+    return -1;
 }
 
 function sortGear(a,b){
     a = geartoNumber(a)
     b = geartoNumber(b)
-    return compare(a,b)   
+    return compare(a, b)
+}
+
+function typetoNumber(type) {
+    if (type == "Vanilla") { return 1; }
+    return -1;
+}
+
+function sortType(a, b) {
+    a = typetoNumber(a)
+    b = typetoNumber(b)
+    return compare(a, b)
 }
 
 function openExtraDetails(index){
     var dropdown = $("#drop_"+index)
-    if(dropdown.attr('data-open')=='0'){
-        dropdown.attr('data-open','1')
+    if (dropdown.attr('data-open') == '0') {
+        dropdown.attr('data-open', '1')
         dropdown.text('arrow_drop_up')
-        $("#extra_"+index).show(200)
-    }else{
+        $("#extra_" + index).show(200)
+    }
+    else {
         dropdown.text('arrow_drop_down')
-        dropdown.attr('data-open','0')
-        $("#extra_"+index).hide(200)
+        dropdown.attr('data-open', '0')
+        $("#extra_" + index).hide(200)
     }
 }
 
